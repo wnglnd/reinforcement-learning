@@ -10,56 +10,20 @@ EPSILON_MIN is set to 0..
 import gym
 import numpy as np
 import matplotlib.pyplot as plt
+import algorithm.q_learning as q_learning
 
 ENV_NAME = "FrozenLake-v0"
-
-GAMMA = 1
-EPSILON_INIT = 1.0
-EPSILON_MIN = 0.1
-ALPHA = 0.1
-
 EVALUATION_EPISODE = 1000
-EPSILON_MIN_EPISODE = 29000
 EPISODES = 60000
 
-class TabularQLearning:
 
-    def __init__ (self, action_space, observation_space):
-        self.action_space = action_space
-        self.observation_space = observation_space
-        self.Q = np.zeros((observation_space, action_space))
-        self.epsilon = EPSILON_INIT
-
-    def learn(self, state, action, reward, state2):
-        target = reward + GAMMA * np.max(self.Q[state2, :])
-        predict = self.Q[state, action]
-        self.Q[state, action] = predict + ALPHA * (target - predict)
-
-    def act(self, state, exploring = True):
-        if self.take_random_action(exploring) == True:
-            action = np.random.randint(self.action_space)
-        else:
-            action = np.argmax(self.Q[state,:])
-        return action
-
-    def take_random_action(self, exploring):
-        if exploring == True:
-            if np.random.rand() < self.epsilon:
-                return True
-            else:
-                return False
-        else:
-            return False
-
-    def update_epsilon(self):
-        self.epsilon = np.max([self.epsilon - (EPSILON_INIT - EPSILON_MIN)/EPSILON_MIN_EPISODE, EPSILON_MIN])
 
 def frozen_lake():
     env = gym.make(ENV_NAME)
     #env = gym.make(ENV_NAME, is_slippery = False)
     action_space = env.action_space.n
     observation_space = env.observation_space.n
-    q_solver = TabularQLearning(action_space, observation_space)
+    q_solver = q_learning.TabularQLearning(action_space, observation_space)
     rewards = 0
     episodes = np.zeros((1,1))
     avg_reward = np.zeros((1,1))
@@ -83,7 +47,7 @@ def frozen_lake():
             t += 1
         rewards += reward
     plt.plot(episodes, avg_reward)
-    plt.title("Frozen Lake 4x4 Tabular Q-learning\nAlpha = " + str(ALPHA))
+    plt.title("Frozen Lake 4x4 Tabular Q-learning")
     plt.xlabel("Episodes")
     plt.ylabel("Avg reward")
     plt.show()
